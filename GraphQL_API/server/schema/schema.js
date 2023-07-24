@@ -1,15 +1,23 @@
 // schema file for GraphQL
+const _ = require('lodash');
+
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLID } = require('graphql');
 
 // TaskType stuff
 const TaskType = new GraphQLObjectType({
   name: 'Task',
-  fields: {
+  fields:  () => ({
     id: { type: GraphQLID },
     title: { type: GraphQLString },
     weight: { type: GraphQLInt },
     description: { type: GraphQLString },
-  },
+    project: {
+      type: ProjectType,
+      resolve: (parent, args) => {
+        return Project.findById(parent.projectId);
+      }
+    }
+  })
 });
 
 const tasks = [
@@ -29,20 +37,21 @@ const tasks = [
   },
 ];
 
+// ProjectType
 const ProjectType = new GraphQLObjectType({
   name: 'Project',
-  fields: {
+  fields: () => ({
     id: { type: GraphQLID },
     title: { type: GraphQLString },
     weight: { type: GraphQLInt },
     description: { type: GraphQLString },
     tasks: {
-      type: TaskType,
-      resolve(parent, args) {
-        return _.filter(tasks, { projectId: parent.id });
-      },
-    },
-  },
+      type: new GraphQLList(TaskType),
+      resolve: (parent, args) => {
+        return Task.find({ projectId: parent.id });
+      }
+    }
+  })
 });
 
 const projects = [
@@ -64,7 +73,7 @@ const projects = [
   }
 ];
 
-// RootQuery definition
+// RootQuery def
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
@@ -72,9 +81,10 @@ const RootQueryType = new GraphQLObjectType({
       type: TaskType,
       args: {
         id: { type: GraphQLID },
+      // mutation: Mutation,
       },
-      resolve(parent, args) {
-        return _.find(tasks, { id: args.id });
+      resolve: (parent, args) => {
+        return Task.findById(args.id);
       },
     },
     project: {
@@ -82,8 +92,20 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLID },
       },
-      resolve(parent, args) {
-        return _.find(projects, { id: args.id });
+      resolve: (parent, args) => {
+        return Project.findById(args.id);
+      }
+    },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve: () => {
+        return Task.find({});
+      }
+    },
+    projects: {
+      type: new GraphQLList(ProjectType),
+      resolve: () => {
+        return Project.find({});
       }
     }
   },
