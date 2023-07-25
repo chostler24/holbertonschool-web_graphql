@@ -1,8 +1,7 @@
-import {
-  useState,
-  //useEffect
-} from "react";
+// make queries for AddTask component
 
+import { useState } from "react";
+import { graphql } from "react-apollo";
 
 function AddTask(props) {
   const [inputs, setInputs] = useState({
@@ -22,76 +21,53 @@ function AddTask(props) {
         setInputs(newInputs)
   }
 
-  return ( <
-    form class = "task"
-    id = "add-task"
-    /*onSubmit = {...}*/ >
-    <
-    div className = "field" >
-    <
-    label > Task title: < /label> <
-    input type = "text"
-    name = "title"
-    onChange = {
-      handleChange
-    }
-    value = {
-      inputs.title
-    }
-    required /
-    >
-    < /
-    div > <
-    div className = "field" >
-    <
-    label > Weight: < /label> <
-    input type = "number"
-    name = "weight"
-    onChange = {
-      handleChange
-    }
-    value = {
-      inputs.weight
-    }
-    required /
-    >
-    < /
-    div >
-    <
-    div className = "field" >
-    <
-    label > description: < /label> <
-    textarea name = "description"
-    onChange = {
-      handleChange
-    }
-    value = {
-      inputs.description
-    }
-    required /
-    >
-    < /
-    div >
-    <
-    div className = "field" >
-    <
-    label > Project: < /label> <
-    select name = "projectId"
-    onChange = {
-      handleChange
-    }
-    value = {
-      inputs.projectId
-    }
-    required > < option value = ""
-    selected = "selected"
-    disabled = "disabled" > Select project < /option>  < /
-    select > < /
-    div >
-    <
-    button > + < /button> < /
-    form >
+  return (
+    <form
+      class="task"
+      id="add-task"
+      onSubmit={...}>
+    <div className="field">
+    <label>Task title:</label>
+    <input
+      type="text"
+      name="title"
+      onChange={handleChange}
+      value={inputs.title}
+      required />
+    </div>
+    <div className="field">
+    <label>Weight: </label>
+    <input
+      type="number"
+      name="weight"
+      onChange={handleChange}
+      value={inputs.weight}
+      required />
+    </div>
+    <div className="field">
+    <label>description: </label>
+    <textarea
+      name="description"
+      onChange={handleChange}
+      value={inputs.description}
+      required />
+    </div>
+    <div className="field">
+    <label>Project: </label>
+    <select
+      name="projectId"
+      onChange={handleChange}
+      value={inputs.projectId}
+      required>
+    <option
+      value=""
+      selected="selected"
+      disabled="disabled">Select project</option>
+      </select>
+      </div>
+    <button> + </button>
+    </form>
   );
-}
+};
 
 export default AddTask;
