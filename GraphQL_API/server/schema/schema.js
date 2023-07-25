@@ -81,7 +81,6 @@ const RootQueryType = new GraphQLObjectType({
       type: TaskType,
       args: {
         id: { type: GraphQLID },
-      // mutation: Mutation,
       },
       resolve: (parent, args) => {
         return Task.findById(args.id);
