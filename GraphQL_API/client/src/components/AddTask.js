@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { graphql } from "react-apollo";
+import { getTasksQuery, getProjectsQuery, addTaskMutation } from "../queries/queries";
+import { flowRight as compose } from 'lodash';
 
 function AddTask(props) {
   const [inputs, setInputs] = useState({
@@ -21,11 +23,41 @@ function AddTask(props) {
         setInputs(newInputs)
   }
 
+  const submitForm = (e) => {
+    e.preventDefault();
+    props.addTaskMutation({
+      variables: {
+        title: inputs.title,
+        weight: inputs.weight,
+        description: inputs.description,
+        projectId: inputs.projectId
+      },
+      refetchQueries: [{
+        query: getTasksQuery
+      }]
+    });
+  }
+
+  function displayProjects() {
+    const data = props.getProjectsQuery;
+    if (data.loading) {
+      return (<option disabled> Loading projects... </option>);
+    } else {
+      return data.projects.map(project => {
+        return (
+          <option key = {project.id} value = {project.id}>
+            {project.title}
+          </option>
+        );
+      })
+    }
+  }
+
   return (
     <form
       class="task"
       id="add-task"
-      onSubmit={...}>
+      onSubmit={submitForm}>
     <div className="field">
     <label>Task title:</label>
     <input
@@ -63,6 +95,7 @@ function AddTask(props) {
       value=""
       selected="selected"
       disabled="disabled">Select project</option>
+      {displayProjects()}
       </select>
       </div>
     <button> + </button>
@@ -70,4 +103,7 @@ function AddTask(props) {
   );
 };
 
-export default AddTask;
+export default compose(
+  graphql(getProjectsQuery, { name: "getProjectsQuery" }),
+  graphql(addTaskMutation, { name: "addTaskMutation" })
+)(AddTask);
