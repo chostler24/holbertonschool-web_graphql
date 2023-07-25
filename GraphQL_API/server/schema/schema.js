@@ -1,7 +1,10 @@
 // schema file for GraphQL
 const _ = require('lodash');
+const mongoose = require('mongoose');
+const Project = require('../models/project');
+const Task = require('../models/task');
 
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLID } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLID, GraphQLList, GraphQLNonNull } = require('graphql');
 
 // TaskType stuff
 const TaskType = new GraphQLObjectType({
@@ -73,6 +76,47 @@ const projects = [
   }
 ];
 
+// Mutation stuff for mongo
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    addProject: {
+      type: ProjectType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        const newProject = new Project({
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+        });
+        return newProject.save();
+      }
+    },
+    addTask: {
+      type: TaskType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+        project: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        const newTask = new Task({
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+          projectId: args.project,
+        });
+        return newTask.save();
+      }
+    }
+  })
+});
+
 // RootQuery def
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -113,4 +157,5 @@ const RootQueryType = new GraphQLObjectType({
 // Export the GraphQLSchema with RootQuery
 module.exports = new GraphQLSchema({
   query: RootQueryType,
+  mutation: Mutation
 });
